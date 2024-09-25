@@ -1,0 +1,50 @@
+﻿@page
+@model ChatTestModel
+@{
+    ViewData["Title"] = "Chat Test";
+}
+
+<h2>Chat Test</h2>
+
+<form id="chatForm" method="post">
+    <div class="form-group">
+        <label for="messageInput">Message:</label>
+        <input type="text" class="form-control" id="messageInput" name="message">
+    </div>
+    <button type="button" class="btn btn-primary" onclick="sendMessage()">Send</button>
+</form>
+
+<div id="responseContainer" style="margin-top: 20px;">
+    <h4>Response:</h4>
+    <pre id="response"></pre>
+</div>
+
+@section Scripts {
+    <script>
+        async function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            const responseContainer = document.getElementById('response');
+
+            responseContainer.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP status ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                responseContainer.textContent = JSON.stringify(responseData, null, 2);
+            } catch (error) {
+                responseContainer.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+}
