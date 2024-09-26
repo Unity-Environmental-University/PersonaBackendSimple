@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="client\src\global.d.ts" />
     <None Remove="Properties\launchSettings.json" />
+    <None Remove="webpack.config.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,7 +17,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="client\src\global.d.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Properties\launchSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\dist\" />
   </ItemGroup>
 
 </Project>
