@@ -2,6 +2,6 @@
 
 declare global {
     interface Window {
-        "SERVER_URL": string;
+        SERVER_URL: string;
     }
 }

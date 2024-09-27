@@ -1,7 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css'; // Import the CSS file
-const serverUrl = (window).SERVER_URL;
 
 interface Message {
     sender: 'user' | 'bot';
@@ -24,14 +23,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
         // Focus the input when the component mounts
-        if(inputRef.current !== null) inputRef.current!.focus();
+        if (inputRef.current !== null) inputRef.current!.focus();
     }, []);
 
     useEffect(() => {
         console.log("...")
         console.log(chatBoxRef.current);
         const inputRefCurrent = inputRef.current;
-        if(inputRefCurrent) inputRefCurrent.focus();
+        if (inputRefCurrent) inputRefCurrent.focus();
         if (chatBoxRef.current) {
             if ("scrollHeight" in chatBoxRef.current) {
                 chatBoxRef.current.scrollTo(0, 100000)
@@ -39,19 +38,19 @@ const App: React.FC = () => {
         }
     }, [messages]);
 
-
     const sendMessage = async () => {
         if (input.trim() === '') return;
-
         const userMessage: Message = { sender: 'user', text: input };
         setMessages(prevMessages => [...prevMessages, userMessage]);
         setInput('');
-
         try {
-            const response = await axios.post<{ reply: string, persona?: Persona }>(`${serverUrl}/chat`, { text: input });
+            const response = await axios.post<{
+                reply: string,
+                persona?: Persona
+            }>('http://localhost:5000/chat', { text: input });
             const botMessage: Message = { sender: 'bot', text: response.data.reply };
-            setMessages(prevMessages => [...prevMessages, botMessage]);
 
+            setMessages(prevMessages => [...prevMessages, botMessage]);
             if (response.data.persona) {
                 setCurrentPersona(response.data.persona);
             }
