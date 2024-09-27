@@ -47,7 +47,7 @@ const App: React.FC = () => {
             const response = await axios.post<{
                 reply: string,
                 persona?: Persona
-            }>('http://localhost:5000/chat', { text: input });
+            }>('/chat', { text: input });
             const botMessage: Message = { sender: 'bot', text: response.data.reply };
 
             setMessages(prevMessages => [...prevMessages, botMessage]);

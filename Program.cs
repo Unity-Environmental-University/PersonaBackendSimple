@@ -35,11 +35,6 @@ builder.Services.AddSingleton(sp =>
     return new OpenAIService(httpClientFactory, openAiApiKey);
 });
 
-/*
-If OpenAIService involves some asynchronous setup or loading of initial data, consider adding logic here to run before the app startup, for example:
-await builder.Services.BuildServiceProvider().GetService<OpenAIService>().InitializeAsync();
-*/
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

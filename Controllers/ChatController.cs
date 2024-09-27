@@ -17,9 +17,8 @@ namespace PersonaBackendSimple.Controllers
     {
         private readonly OpenAIService _openAiService;
         private readonly IHttpClientFactory _httpClientFactory;
-        private static List<ChatMessage> conversationHistory = new();
         private static List<Persona> allPersonae = new();
-        private static Persona? currentPersona = null;
+        private static string instructions = string.Empty;
 
         public ChatController(OpenAIService openAiService, IHttpClientFactory httpClientFactory)
         {
@@ -32,9 +31,11 @@ namespace PersonaBackendSimple.Controllers
         {
             try
             {
+                var client = _httpClientFactory.CreateClient();
                 var session = HttpContext.Session;
                 var personae = session.Get<List<Persona>>("personae") ?? new List<Persona>();
-
+                var currentPersona = session.Get<Persona>("currentPersona") ?? null;
+                var conversationHistory = session.Get<List<ChatMessage>>("conversationHistory") ?? new List<ChatMessage>();
                 if (allPersonae.Count == 0)
                 {
                     await LoadPersonae();
@@ -43,6 +44,7 @@ namespace PersonaBackendSimple.Controllers
                 if (!personae.Any())
                 {
                     personae = Shuffle(allPersonae);
+                    currentPersona ??= personae[0];
                     session.Set("personae", personae);
                 }
 
@@ -50,10 +52,27 @@ namespace PersonaBackendSimple.Controllers
                 var intentAndPersona = await _openAiService.DetermineIntentAndPersona(
                     conversationHistory, chatRequest.Text, personaNames);
 
-                // Handle intent and persona logic
-                // Code omitted for brevity
+                if(intentAndPersona.Intent == "switch users")
+                {
+                    var switchPersona = personae.Find((a) => a.Name.Equals(intentAndPersona.Persona, StringComparison.InvariantCultureIgnoreCase));
+                    if (switchPersona != null && currentPersona != switchPersona)
+                    {
+                        conversationHistory.Add(new ChatMessage {
+                            Role = "system",
+                            Content = $"The persona just switched from {currentPersona?.Name}:{currentPersona?.Role} to {switchPersona.Name}:{switchPersona.Role}"
+                        });
+                        currentPersona = switchPersona;
+                        session.Set("currentPersona", currentPersona);
 
-                return Ok(new { Reply = "Message processed", Persona = currentPersona, AvailablePersonae = personae });
+                    }
+                }
+                    
+
+                //private async Task<string> Respond(HttpClient client, List<ChatMessage> history, string message, string personaName)
+                var response = await _openAiService.Chat(client, conversationHistory, chatRequest.Text, currentPersona ?? personae[0], instructions);
+                session.Set("conversationHistory", response.updatedHistory);
+
+                return Ok(new { Reply = response.responseMessage, Persona = currentPersona, AvailablePersonae = personae });
             }
             catch (Exception ex)
             {
@@ -65,6 +84,8 @@ namespace PersonaBackendSimple.Controllers
         {
             var googleSheetsApiKey = Environment.GetEnvironmentVariable("GOOGLE_SHEETS_API_KEY");
             var spreadSheetId = Environment.GetEnvironmentVariable("PERSONA_SHEET_ID");
+
+            instructions = Environment.GetEnvironmentVariable("Base Instructions");
 
             if (string.IsNullOrEmpty(googleSheetsApiKey) || string.IsNullOrEmpty(spreadSheetId))
             {

@@ -1,31 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="client\src\global.d.ts" />
-    <None Remove="Properties\launchSettings.json" />
-    <None Remove="webpack.config.js" />
-  </ItemGroup>
+	<!-- Remove TypeScript files from the build process -->
+	<ItemGroup>
+		<None Remove="client\src\**\*.ts" />
+		<None Remove="client\src\**\*.tsx" />
+		<None Remove="client\src\global.d.ts" />
+		<None Remove="Properties\launchSettings.json" />
+		<None Remove="webpack.config.js" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <_WebToolingArtifacts Remove="Properties\launchSettings.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<_WebToolingArtifacts Remove="Properties\launchSettings.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="client\src\global.d.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Properties\launchSettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\dist\" />
-  </ItemGroup>
+	<!-- Include global.d.ts and launchSettings.json as content -->
+	<ItemGroup>
+		<Content Include="client\src\global.d.ts" />
+		<Content Include="Properties\launchSettings.json" />
+	</ItemGroup>
+	<ItemGroup>
+	  <TypeScriptCompile Include="client\src\App.tsx" />
+	  <TypeScriptCompile Include="client\src\main.tsx" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.6.2">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\js\" />
+	</ItemGroup>
 
 </Project>
